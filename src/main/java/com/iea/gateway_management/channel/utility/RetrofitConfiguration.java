@@ -1,6 +1,8 @@
 package com.iea.gateway_management.channel.utility;
 
 import com.google.gson.Gson;
+import com.iea.gateway_management.channel.model.repository.ProductServiceCallable;
+import com.iea.gateway_management.channel.model.repository.TransactionServiceCallable;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +18,20 @@ public class RetrofitConfiguration
 {
     @Value("${retrofit.timeout}")
     private long TIMEOUT_IN_SECONDS;
+
+    @Bean
+    public TransactionServiceCallable createTransactionServiceRequest(Retrofit.Builder secureKeyBuilder,
+                                                                  @Value("${transaction.service.url}") String baseUrl){
+        return secureKeyBuilder.baseUrl(baseUrl).build().create(TransactionServiceCallable.class);
+    }
+
+
+    //
+    @Bean
+    public ProductServiceCallable createProductServiceRequest(Retrofit.Builder secureKeyBuilder,
+                                                              @Value("${product.service.url}") String baseUrl){
+        return secureKeyBuilder.baseUrl(baseUrl).build().create(ProductServiceCallable.class);
+    }
 
     // secureKeyClient'ı kullanarak, Retrofit.Builder üretildi.
     @Bean
@@ -33,7 +49,6 @@ public class RetrofitConfiguration
         return createDefaultClientBuilder().addInterceptor(interceptor -> interceptor.proceed(interceptor.request().newBuilder()
                                            .header("Authorization", Credentials.basic(secureKeyUsername, secureKeyPassword))
                                            .build())).build();
-
     }
 
     // varsayılan OKHttpClient.Builder
